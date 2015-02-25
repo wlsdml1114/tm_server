@@ -26,6 +26,9 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
+var io = require('socket.io').listen(server);
+var _socket = require('../socket');
+
 
 mongoose.connect('mongodb://localhost/terrydb', function(err){
 
@@ -37,6 +40,10 @@ mongoose.connect('mongodb://localhost/terrydb', function(err){
   server.listen(port);
   server.on('error', onError);
   server.on('listening', onListening);
+
+  io.sockets.on('connection', function(socket){
+    _socket(socket, io);
+  });
 
   console.log('SERVER START localhost:' + port);
 

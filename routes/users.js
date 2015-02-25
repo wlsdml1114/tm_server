@@ -12,14 +12,14 @@ router.get('/', function(req, res, next) {
 router.post('/', function(req, res, next) {
 	var user = new User({ id: req.body.id, pwd: req.body.pwd, email: req.body.email, nickname: req.body.email });
 	// User.findOne({'id' : req.body.id},function(err,user){
-	// 	if(req.body.id===user.id){
+	// 	if(typeof user === 'undefined'){
 	// 		res.send(false);
 	// 	}
 	// 	else{
 	// 		res.send(true);
 	// 		user.save();
 	// 	}
-	// })
+	// });
 	user.save();
 	res.send(true);
 });
