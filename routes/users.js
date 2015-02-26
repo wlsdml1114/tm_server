@@ -10,32 +10,60 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
-	var user = new User({ id: req.body.id, pwd: req.body.pwd, email: req.body.email, nickname: req.body.email });
-	// User.findOne({'id' : req.body.id},function(err,user){
-	// 	if(typeof user === 'undefined'){
-	// 		res.send(false);
-	// 	}
-	// 	else{
-	// 		res.send(true);
-	// 		user.save();
-	// 	}
-	// });
-	user.save();
-	res.send(true);
+	var user = new User({ id: req.body.id, pwd: req.body.pwd, email: req.body.email, nickname: req.body.nickname });
+	var check_id = new User();
+	var check_nick = new User();
+	User.findOne({'id' : req.body.id},function(err,check_id){
+		if(check_id==null){
+			User.findOne({'nickname' : user.nickname},function(err,check_nick){
+				if(check_nick==null){					
+					user.save();
+					res.send({
+						result: true,
+						msg: 'success'
+					});
+				}
+				else{
+					res.send({
+						result: false,
+						msg: 'this nick is already using'
+					});
+				}
+			});
+		}
+		else{
+			res.send({
+				result: false,
+				msg: 'this Id is already using'
+			});
+		}
+	});
+	// user.save();
+	// res.send(true);
 });
 
 router.post('/login',function(req,res,next){
-	var user = new User();
 
-	User.findOne({'id' : req.body.id},function(err,user){
+	User.findOne({'id' : req.body.id}, function(err, user){
+		if(user == null){
+			res.send({
+				result: false,
+				msg: 'There is no user'
+			});
+		}else{
+			var 	check = req.body.pwd === user.pwd;
 
-		var check = (req.body.pwd===user.pwd);	
-		console.log(check);
-		if(check){
-			res.send(true);
-		}
-		else{
-			res.send(false);
+			if(check){
+				res.send({
+					result: true,
+					msg: 'success'
+				});
+			}else{
+				res.send({
+					result: false,
+					msg: 'Wrong password'
+				});
+			}
 		}
 	});
 });

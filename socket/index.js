@@ -1,48 +1,81 @@
 var model = require('../models');
 
-var usernames = {};
+var connected_user = [];
 
 var run_socket = function(socket, io){
 
+	socket.on('syncgame', function (data) {
+		/*
+			{x: a, y: a}
+		*/
+		// console.log(data);
+		socket.user.character.x =  data.x;
+		socket.user.character.y =  data.y;
+
+		var characters = [];
+
+		for(var user in connected_user){
+			// console.log(user.id);
+			// characters.push(user.character);
+		}
+
+		// console.log(characters);
+
+		io.sockets.emit('updategame', characters);
+	});	
+
 	socket.on('sendchat', function (data) {
-		console.log(socket.username + " : " + data);
-		io.sockets.emit('updatechat', socket.username, data);
+		console.log(socket.user.id + " : " + data);
+		io.sockets.emit('updatechat', socket.user.id, data);
 	});
 
-	socket.on('adduser', function(username){
+	socket.on('adduser', function(id){
 
-		console.log('adduser');
+		if(isValidateUser(id)){
 
-		var user = new model.User({
-			id : username
-		});
+			var user = new model.User({
+				id : id,
+				character: new model.Character({ id : id })
+			});
 
-		if(usernames[username]!=null){
-	
-			socket.emit('failadd', 'SERVER', false);
-	
-		}else{
 			user.save();
 
-			socket.username = username;
-			usernames[username] = username;
+			socket.user = user;
+			connected_user.push(user);
 
-			console.log('[SERVER CONNECT]' + username);
+			console.log(connected_user);
+
+			console.log('[SERVER CONNECT]' + id);
 			// socket.emit('updatechat', 'SERVER', 'you have connected');
 			// socket.broadcast.emit('updatechat', 'SERVER', username + ' has connected');
 
 			// io.sockets.emit('updateusers', usernames);
+		}else{
+			socket.emit('failadd', 'SERVER', false);
 		}
 	});
 
 	socket.on('disconnect', function(){
-
-		delete usernames[socket.username];
+		connected_user.forEach(function(user, i){
+			if(user.id === id){
+				delete connected_user[i];
+			}
+		});
 
 		// io.sockets.emit('updateusers', usernames);
 		// socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
 
 	});
+};
+
+var isValidateUser = function(id){
+	for(var user in connected_user){
+		if(user.id === id){
+			return false;
+		}
+	}
+
+	return true;
 };
 
 module.exports = run_socket;
