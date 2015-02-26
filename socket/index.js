@@ -8,15 +8,15 @@ var run_socket = function(socket, io){
 		/*
 			{x: a, y: a}
 		*/
-		// console.log(data);
 		socket.user.character.x =  data.x;
 		socket.user.character.y =  data.y;
 
+		connected_user[socket.user.id] = socket.user;
+
 		var characters = [];
 
-		for(var user in connected_user){
-			// console.log(user.id);
-			// characters.push(user.character);
+		for(var key in connected_user){
+			characters.push(connected_user[key].character);
 		}
 
 		// console.log(characters);

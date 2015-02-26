@@ -3,6 +3,37 @@ var router = express.Router();
 
 var User = require('../models').User;
 
+var isExisted = function(data, list){
+	for(var key in list){
+		if(data[list[key]] == undefined || data[list[key]] === ''){
+			return false;
+		}
+	}
+	return true;
+};
+
+var isValidated = function(data, list){
+	var valid = true;
+
+	for(var key in list){
+		var value = list[key];
+		var finder = {};
+
+		finder[value] = data[value];
+
+		User.findOne(finder, function(err, user){
+
+			if(user != null){
+				valid = false;
+			}
+		});
+	}
+
+	console.log(valid);
+
+	return valid;
+};
+
 router.get('/', function(req, res, next) {
 	User.find().exec(function(err, users){
 		res.send(users);
@@ -10,36 +41,47 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
-	var user = new User({ id: req.body.id, pwd: req.body.pwd, email: req.body.email, nickname: req.body.nickname });
-	var check_id = new User();
-	var check_nick = new User();
-	User.findOne({'id' : req.body.id},function(err,check_id){
-		if(check_id==null){
-			User.findOne({'nickname' : user.nickname},function(err,check_nick){
-				if(check_nick==null){					
+	var list = ['id', 'pwd', 'email', 'nickname'];
+
+	if(!isExisted(req.body, list)){
+		res.send({
+			result : false,
+			msg : 'Wrong user Data'
+		});
+	}
+
+	User.findOne({'id': req.body.id}, function(err, user_by_id){
+		if(user_by_id == null){
+			User.findOne({'nickname': req.body.nickname}, function(err, user){
+				if(user == null){
+					var user = new User({
+						id: req.body.id, 
+						pwd: req.body.pwd, 
+						email: req.body.email, 
+						nickname: req.body.nickname 
+					});
+
 					user.save();
+
 					res.send({
 						result: true,
-						msg: 'success'
+						msg: 'success',
+						test : 'test'
 					});
-				}
-				else{
+				}else{
 					res.send({
-						result: false,
-						msg: 'this nick is already using'
+						result : false,
+						msg : 'Already exist nickname'
 					});
 				}
 			});
-		}
-		else{
+		}else{
 			res.send({
-				result: false,
-				msg: 'this Id is already using'
+				result : false,
+				msg : 'Already exist id'
 			});
 		}
 	});
-	// user.save();
-	// res.send(true);
 });
 
 router.post('/login',function(req,res,next){
