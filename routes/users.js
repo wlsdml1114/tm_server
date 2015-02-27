@@ -101,7 +101,7 @@ router.post('/login',function(req,res,next){
 			if(check){
 				res.send({
 					result: true,
-					user_id : user._id
+					user_id : user.nickname
 				});
 			}else{
 				res.send({

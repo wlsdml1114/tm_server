@@ -22,7 +22,11 @@ var run_socket = function(socket, io){
 		var characters = [];
 
 		for(var key in connected_user){
-			characters.push(connected_user[key].character);
+			characters.push({
+				x : connected_user[key].character.x,
+				y : connected_user[key].character.y,
+				nickname : socket.user.nickname
+			});
 		}
 		console.log(characters);
 
@@ -34,15 +38,15 @@ var run_socket = function(socket, io){
 		io.sockets.emit('updatechat', socket.user.id, data);
 	});
 
-	socket.on('adduser', function(id){
+	socket.on('adduser', function(nickname){
 
-		if(isValidateUser(id)){
+		if(isValidateUser(nickname)){
 
 			// var user = new model.User({
 			// 	id : id,
 			// 	character: new model.Character({ id : id })
 			// });
-			model.User.findOne({'_id': id}, function(err, user){
+			model.User.findOne({'nickname': nickname}, function(err, user){
 				socket.user = user;
 				connected_user.push(user);
 
