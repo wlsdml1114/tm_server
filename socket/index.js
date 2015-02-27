@@ -74,7 +74,7 @@ var run_socket = function(socket, io){
 
 		// io.sockets.emit('updateusers', usernames);
 		// socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
-
+		delete connected_user;
 	});
 };
 
