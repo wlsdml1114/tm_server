@@ -2,6 +2,12 @@ var model = require('../models');
 
 var connected_user = [];
 
+/*
+	1. sign in - > new user + new character (id) success
+	2. login (character id) -> socket.connect -> socket.adduser - > connected_user
+	3. connect_user log -> user.character (id, x, y)
+*/
+
 var run_socket = function(socket, io){
 
 	socket.on('syncgame', function (data) {
@@ -18,8 +24,7 @@ var run_socket = function(socket, io){
 		for(var key in connected_user){
 			characters.push(connected_user[key].character);
 		}
-
-		// console.log(characters);
+		console.log(characters);
 
 		io.sockets.emit('updategame', characters);
 	});	
@@ -33,19 +38,20 @@ var run_socket = function(socket, io){
 
 		if(isValidateUser(id)){
 
-			var user = new model.User({
-				id : id,
-				character: new model.Character({ id : id })
+			// var user = new model.User({
+			// 	id : id,
+			// 	character: new model.Character({ id : id })
+			// });
+			model.User.findOne({'_id': id}, function(err, user){
+				socket.user = user;
+				connected_user.push(user);
+
+				// console.log(connected_user);
+				console.log(user);
+				console.log('[SERVER CONNECT]' + user.nickname);
+					
 			});
 
-			user.save();
-
-			socket.user = user;
-			connected_user.push(user);
-
-			console.log(connected_user);
-
-			console.log('[SERVER CONNECT]' + id);
 			// socket.emit('updatechat', 'SERVER', 'you have connected');
 			// socket.broadcast.emit('updatechat', 'SERVER', username + ' has connected');
 
@@ -56,11 +62,11 @@ var run_socket = function(socket, io){
 	});
 
 	socket.on('disconnect', function(){
-		connected_user.forEach(function(user, i){
-			if(user.id === id){
-				delete connected_user[i];
-			}
-		});
+		// connected_user.forEach(function(user, i){
+		// 	if(user.id === id){
+		// 		delete connected_user[i];
+		// 	}
+		// });
 
 		// io.sockets.emit('updateusers', usernames);
 		// socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');

@@ -58,15 +58,18 @@ router.post('/', function(req, res, next) {
 						id: req.body.id, 
 						pwd: req.body.pwd, 
 						email: req.body.email, 
-						nickname: req.body.nickname 
+						nickname: req.body.nickname,
+						character : {
+							x : 0,
+							y : 0
+						} 
 					});
 
 					user.save();
 
 					res.send({
 						result: true,
-						msg: 'success',
-						test : 'test'
+						msg: 'success'
 					});
 				}else{
 					res.send({
@@ -98,7 +101,7 @@ router.post('/login',function(req,res,next){
 			if(check){
 				res.send({
 					result: true,
-					msg: 'success'
+					user_id : user._id
 				});
 			}else{
 				res.send({
