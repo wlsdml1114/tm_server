@@ -25,7 +25,7 @@ var run_socket = function(socket, io){
 			characters.push({
 				x : connected_user[key].character.x,
 				y : connected_user[key].character.y,
-				nickname : socket.user.nickname
+				nickname : data.nickname
 			});
 		}
 		console.log(characters);
@@ -74,7 +74,9 @@ var run_socket = function(socket, io){
 
 		// io.sockets.emit('updateusers', usernames);
 		// socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
-		delete connected_user;
+		for(var key in connected_user){
+			delete connected_user[key];
+		}
 	});
 };
 
